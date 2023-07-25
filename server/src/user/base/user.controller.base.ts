@@ -27,6 +27,9 @@ import { UserWhereUniqueInput } from "./UserWhereUniqueInput";
 import { UserFindManyArgs } from "./UserFindManyArgs";
 import { UserUpdateInput } from "./UserUpdateInput";
 import { User } from "./User";
+import { ProjectFindManyArgs } from "../../project/base/ProjectFindManyArgs";
+import { Project } from "../../project/base/Project";
+import { ProjectWhereUniqueInput } from "../../project/base/ProjectWhereUniqueInput";
 
 @swagger.ApiBearerAuth()
 @common.UseGuards(defaultAuthGuard.DefaultAuthGuard, nestAccessControl.ACGuard)
@@ -51,6 +54,7 @@ export class UserControllerBase {
       data: data,
       select: {
         createdAt: true,
+        email: true,
         firstName: true,
         id: true,
         lastName: true,
@@ -79,6 +83,7 @@ export class UserControllerBase {
       ...args,
       select: {
         createdAt: true,
+        email: true,
         firstName: true,
         id: true,
         lastName: true,
@@ -108,6 +113,7 @@ export class UserControllerBase {
       where: params,
       select: {
         createdAt: true,
+        email: true,
         firstName: true,
         id: true,
         lastName: true,
@@ -146,6 +152,7 @@ export class UserControllerBase {
         data: data,
         select: {
           createdAt: true,
+          email: true,
           firstName: true,
           id: true,
           lastName: true,
@@ -183,6 +190,7 @@ export class UserControllerBase {
         where: params,
         select: {
           createdAt: true,
+          email: true,
           firstName: true,
           id: true,
           lastName: true,
@@ -199,5 +207,107 @@ export class UserControllerBase {
       }
       throw error;
     }
+  }
+
+  @common.UseInterceptors(AclFilterResponseInterceptor)
+  @common.Get("/:id/project")
+  @ApiNestedQuery(ProjectFindManyArgs)
+  @nestAccessControl.UseRoles({
+    resource: "Project",
+    action: "read",
+    possession: "any",
+  })
+  async findManyProject(
+    @common.Req() request: Request,
+    @common.Param() params: UserWhereUniqueInput
+  ): Promise<Project[]> {
+    const query = plainToClass(ProjectFindManyArgs, request.query);
+    const results = await this.service.findProject(params.id, {
+      ...query,
+      select: {
+        createdAt: true,
+        id: true,
+        name: true,
+        updatedAt: true,
+
+        workflows: {
+          select: {
+            id: true,
+          },
+        },
+      },
+    });
+    if (results === null) {
+      throw new errors.NotFoundException(
+        `No resource was found for ${JSON.stringify(params)}`
+      );
+    }
+    return results;
+  }
+
+  @common.Post("/:id/project")
+  @nestAccessControl.UseRoles({
+    resource: "User",
+    action: "update",
+    possession: "any",
+  })
+  async connectProject(
+    @common.Param() params: UserWhereUniqueInput,
+    @common.Body() body: ProjectWhereUniqueInput[]
+  ): Promise<void> {
+    const data = {
+      project: {
+        connect: body,
+      },
+    };
+    await this.service.update({
+      where: params,
+      data,
+      select: { id: true },
+    });
+  }
+
+  @common.Patch("/:id/project")
+  @nestAccessControl.UseRoles({
+    resource: "User",
+    action: "update",
+    possession: "any",
+  })
+  async updateProject(
+    @common.Param() params: UserWhereUniqueInput,
+    @common.Body() body: ProjectWhereUniqueInput[]
+  ): Promise<void> {
+    const data = {
+      project: {
+        set: body,
+      },
+    };
+    await this.service.update({
+      where: params,
+      data,
+      select: { id: true },
+    });
+  }
+
+  @common.Delete("/:id/project")
+  @nestAccessControl.UseRoles({
+    resource: "User",
+    action: "update",
+    possession: "any",
+  })
+  async disconnectProject(
+    @common.Param() params: UserWhereUniqueInput,
+    @common.Body() body: ProjectWhereUniqueInput[]
+  ): Promise<void> {
+    const data = {
+      project: {
+        disconnect: body,
+      },
+    };
+    await this.service.update({
+      where: params,
+      data,
+      select: { id: true },
+    });
   }
 }

@@ -2,6 +2,12 @@ import { Module, Scope } from "@nestjs/common";
 import { APP_INTERCEPTOR } from "@nestjs/core";
 import { MorganInterceptor, MorganModule } from "nest-morgan";
 import { UserModule } from "./user/user.module";
+import { ProjectModule } from "./project/project.module";
+import { WorkflowModule } from "./workflow/workflow.module";
+import { ProcessModule } from "./process/process.module";
+import { LibraryModule } from "./library/library.module";
+import { DatasetModule } from "./dataset/dataset.module";
+import { UIModule } from "./ui/ui.module";
 import { HealthModule } from "./health/health.module";
 import { PrismaModule } from "./prisma/prisma.module";
 import { SecretsManagerModule } from "./providers/secrets/secretsManager.module";
@@ -19,6 +25,12 @@ import { AuthModule } from "./auth/auth.module";
     ACLModule,
     AuthModule,
     UserModule,
+    ProjectModule,
+    WorkflowModule,
+    ProcessModule,
+    LibraryModule,
+    DatasetModule,
+    UIModule,
     HealthModule,
     PrismaModule,
     SecretsManagerModule,

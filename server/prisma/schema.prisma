@@ -8,12 +8,70 @@ generator client {
 }
 
 model User {
+  createdAt  DateTime  @default(now())
+  email      String    @unique
+  firstName  String?
+  id         String    @id @default(auto()) @map("_id") @mongo.ObjectId
+  lastName   String?
+  password   String
+  project    Project[] @relation(fields: [projectIds], references: [id])
+  projectIds String[]  @mongo.ObjectId
+  roles      Json
+  updatedAt  DateTime  @updatedAt
+  username   String    @unique
+}
+
+model Project {
+  collaborators    User[]    @relation(fields: [collaboratorsIds], references: [id])
+  collaboratorsIds String[]  @mongo.ObjectId
+  createdAt        DateTime  @default(now())
+  id               String    @id @default(auto()) @map("_id") @mongo.ObjectId
+  name             String    @unique
+  updatedAt        DateTime  @updatedAt
+  workflows        Workflow? @relation(fields: [workflowId], references: [id])
+  workflowId       String?   @mongo.ObjectId
+}
+
+model Workflow {
+  createdAt    DateTime  @default(now())
+  id           String    @id @default(auto()) @map("_id") @mongo.ObjectId
+  outputSchema String?
+  processes    Process[]
+  project      Project?
+  updatedAt    DateTime  @updatedAt
+}
+
+model Process {
+  createdAt    DateTime  @default(now())
+  externalApi  String?
+  id           String    @id @default(auto()) @map("_id") @mongo.ObjectId
+  outputSchema String?
+  ui           String?
+  updatedAt    DateTime  @updatedAt
+  workflow     Workflow? @relation(fields: [workflowId], references: [id])
+  workflowId   String?
+}
+
+model Library {
+  createdAt      DateTime @default(now())
+  id             String   @id @default(auto()) @map("_id") @mongo.ObjectId
+  isRemote       Boolean
+  name           String
+  process        String?
+  runtime        String
+  runtimeVersion String
+  updatedAt      DateTime @updatedAt
+  uri            String
+}
+
+model Dataset {
   createdAt DateTime @default(now())
-  firstName String?
   id        String   @id @default(auto()) @map("_id") @mongo.ObjectId
-  lastName  String?
-  password  String
-  roles     Json
   updatedAt DateTime @updatedAt
-  username  String   @unique
+}
+
+model UI {
+  createdAt DateTime @default(now())
+  id        String   @id @default(auto()) @map("_id") @mongo.ObjectId
+  updatedAt DateTime @updatedAt
 }
