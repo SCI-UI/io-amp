@@ -11,13 +11,25 @@ https://docs.amplication.com/how-to/custom-code
   */
 import { InputType, Field } from "@nestjs/graphql";
 import { ApiProperty } from "@nestjs/swagger";
-import { StringNullableFilter } from "../../util/StringNullableFilter";
-import { Type } from "class-transformer";
-import { IsOptional } from "class-validator";
 import { StringFilter } from "../../util/StringFilter";
+import { Type } from "class-transformer";
+import { IsOptional, ValidateNested } from "class-validator";
+import { StringNullableFilter } from "../../util/StringNullableFilter";
+import { ProjectListRelationFilter } from "../../project/base/ProjectListRelationFilter";
 
 @InputType()
 class UserWhereInput {
+  @ApiProperty({
+    required: false,
+    type: StringFilter,
+  })
+  @Type(() => StringFilter)
+  @IsOptional()
+  @Field(() => StringFilter, {
+    nullable: true,
+  })
+  email?: StringFilter;
+
   @ApiProperty({
     required: false,
     type: StringNullableFilter,
@@ -50,6 +62,18 @@ class UserWhereInput {
     nullable: true,
   })
   lastName?: StringNullableFilter;
+
+  @ApiProperty({
+    required: false,
+    type: () => ProjectListRelationFilter,
+  })
+  @ValidateNested()
+  @Type(() => ProjectListRelationFilter)
+  @IsOptional()
+  @Field(() => ProjectListRelationFilter, {
+    nullable: true,
+  })
+  project?: ProjectListRelationFilter;
 
   @ApiProperty({
     required: false,
